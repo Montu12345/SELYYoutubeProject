@@ -1,9 +1,11 @@
+#importing all libraries
 from youtube_api import YouTubeDataAPI
 from youtube_transcript_api import YouTubeTranscriptApi
 import pandas as pd
 import numpy as np
 import datetime
 
+#keeps a tally of how many words are in a list
 def word_count(list):
     counts = dict()
     words = list
@@ -16,28 +18,38 @@ def word_count(list):
 
     return counts
     
+#number of videos to search for; returns a dictionary
 number_of_results = 100
+#api key = value
 api_key = "VALUE" 
 yt = YouTubeDataAPI(api_key)
 
+#search for top 100 videos sorted by relevance between jan 1 2019 and jun 30 2019
 searches_2019 = yt.search(q='exercise at home', max_results=number_of_results, order_by='relevance', published_after=datetime.datetime.timestamp(datetime.datetime(2019,1,1)), published_before=datetime.datetime.timestamp(datetime.datetime(2019,6,30)))
 
+#converts data into a pandas dataframe
 df_searches_2019 = pd.DataFrame(searches_2019)
+
+#print data for videos
 pd.options.display.max_rows = 100
 df_searches_2019.to_string(index = False)
 df_searches_2019.iloc[:,0].tolist()
 df_searches_2019
 
+#gets more information about the videos based on the video's video_id
 searches_2019_more_info = []
 video_id_2019 = df_searches_2019.iloc[:,0]
 for i in range(0, number_of_results):
     searches_2019_more_info_singluar = yt.get_video_metadata(video_id_2019[i], part=['statistics','snippet'])
     searches_2019_more_info_singluar['number'] = i
     searches_2019_more_info.append(searches_2019_more_info_singluar)
-    
+
+#converts data into a pandas dataframe and prints it out
 searches_2019_more_info = pd.DataFrame(searches_2019_more_info)
 searches_2019_more_info
 
+#process of counting how many times either nothing is in the description, or the words "Para, Paralympic, Adaptive, Adapted, Disabled, Disability, Differently abled, Disability friendly, Wheelchair Accessible, and Inclusive" appeard.
+#search is case sensitive, so also did lowercase search
 None_2019 = 0
 Para_2019 = 0
 para_2019 = 0
@@ -175,27 +187,30 @@ for i in range(0, number_of_results):
     tag_2019 = video_tag_2019[i].split("|")
     video_tag_list_2019 = video_tag_list_2019 + (tag_2019)
 
-#running the word_count function on list of video_tag and video description, prints out if the number count is > 1
-word_count_tag_2019 = word_count(video_tag_list_2019)#for key, value in word_count_tag_2019.items():
+#running the word_count function on list of video_tag, prints out the key (word) and the value (number of times the name appeared)
+word_count_tag_2019 = word_count(video_tag_list_2019)
 for key, value in word_count_tag_2019.items():
     print(key)
-        
-word_count_description_2019 = word_count(video_description_list_2019)
+    #print(value)
 
+#running the word_count function on video_description, prints out 
+word_count_description_2019 = word_count(video_description_list_2019)
 sorted_word_count_description_2019 = sorted(word_count_description_2019.items(), key=lambda x: x[1])
 df_sorted_word_count_2019 = pd.DataFrame(sorted_word_count_description_2019)
 pd.options.display.max_rows = 5500
 df_sorted_word_count_2019.head(5300)
 
-#conducting search on youtube. sorting by relevance, videos publised between jan 1st 2020 and jun 30 2020
+#search for top 100 videos sorted by relevance between jan 1 2020 and jun 30 2020
 searches_2020 = yt.search(q='exercise at home', max_results=number_of_results, order_by='relevance', published_after=datetime.datetime.timestamp(datetime.datetime(2020,1,1)), published_before=datetime.datetime.timestamp(datetime.datetime(2020,6,30)))
 
-#converting searches (list) into pandas dataframe 
+#converts data into a pandas dataframe
 df_searches_2020 = pd.DataFrame(searches_2020)
+
+#print data for videos
 pd.options.display.max_rows = 100
 df_searches_2020
 
-#using youtube video video_id to get more information about the video
+#gets more information about the videos based on the video's video_id
 searches_2020_more_info = []
 video_id_2020 = df_searches_2020.iloc[:,0]
 for i in range(0, number_of_results):
@@ -203,12 +218,13 @@ for i in range(0, number_of_results):
     searches_2020_more_info_singluar['number'] = i
     searches_2020_more_info.append(searches_2020_more_info_singluar)
 
-#converting to pandas dataframe
+#converts data into a pandas dataframe and prints it out
 searches_2020_more_info = pd.DataFrame(searches_2020_more_info)
 pd.options.display.max_rows = 100
 searches_2020_more_info
 
-#searching how many times the following keywords appear in the title or description of a video
+#process of counting how many times either nothing is in the description, or the words "Para, Paralympic, Adaptive, Adapted, Disabled, Disability, Differently abled, Disability friendly, Wheelchair Accessible, and Inclusive" appeard.
+#search is case sensitive, so also did lowercase search
 None_2020 = 0
 Para_2020 = 0
 para_2020 = 0
@@ -234,10 +250,6 @@ inclusive_2020 = 0
 video_title_2020 = searches_2020_more_info.iloc[:,4]
 video_description_2020 = searches_2020_more_info.iloc[:,5]
 
-#if myString.strip():
-   # print("it's not an empty or blank string")
-#else:
-  #  print("it's an empty or blank string")
 for i in range(0, number_of_results):
     if (not video_description_2020[i].strip()):
         None_2020 += 1
@@ -305,7 +317,6 @@ for i in range(0, number_of_results):
     if ("inclusive" in (video_description_2020[i] or video_title_2020[i])):
         inclusive_2020 += 1
         
-#difference between Para and para exists --> case sensitive
 print ("2020 None", None_2020)
 
 print ("2020 Para:", Para_2020)
@@ -351,30 +362,35 @@ video_tag_list_2020 = []
 for i in range(0, number_of_results):
     tag_2020 = video_tag_2020[i].split("|")
     video_tag_list_2020 = video_tag_list_2020 + (tag_2020)
-    
+
+#running the word_count function on list of video_tag, prints out the key (word) and the value (number of times the name appeared)
 word_count_tag_2020 = word_count(video_tag_list_2020)
 for key, value in word_count_tag_2020.items():
+    #print(key)
     print(value)
 
+#running the word_count function on video_description, prints out 
 word_count_description_2020 = word_count(video_description_list_2020)
-
 sorted_word_count_description_2020 = sorted(word_count_description_2020.items(), key=lambda x: x[1])
 df_sorted_word_count = pd.DataFrame(sorted_word_count_description_2020)
 pd.options.display.max_rows = 5100
 df_sorted_word_count.head(5100)
 
+#gathering subtitles of the videos
 transcript_list = []
 
-for i in range(96, 100):
+#checks if videos have subtitles, throws error when video does not have subtitles
+for i in range(0, 100):
     print(i)
     transcript_2020 = YouTubeTranscriptApi.get_transcript(video_id_2020[i])
     transcript_list.append(transcript_2020)
     
 print (transcript_list)
 
-transcript_list_2019 = []
 
-for i in range(96, 100):
+transcript_list_2019 = []
+#checks if videos have subtitles, throws error when video does not have subtitles
+for i in range(0, 100):
     print(i)
     transcript_2019 = YouTubeTranscriptApi.get_transcript(video_id_2019[i])
     #searches_2020_more_info_singluar['number'] = i
